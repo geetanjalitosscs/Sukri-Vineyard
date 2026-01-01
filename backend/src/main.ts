@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import * as os from 'os';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,8 +25,39 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`🚀 Backend server running on http://localhost:${port}/api`);
+  const host = process.env.HOST || '0.0.0.0';
+  await app.listen(port, host);
+  
+  // Get the actual server address
+  const server = app.getHttpServer();
+  const address = server.address();
+  const serverPort = typeof address === 'object' ? address?.port : port;
+  
+  // Get network interfaces to show actual IP addresses
+  const networkInterfaces = os.networkInterfaces();
+  const ipAddresses: string[] = [];
+  
+  Object.keys(networkInterfaces).forEach((interfaceName) => {
+    const interfaces = networkInterfaces[interfaceName];
+    if (interfaces) {
+      interfaces.forEach((iface) => {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          ipAddresses.push(iface.address);
+        }
+      });
+    }
+  });
+  
+  console.log(`🚀 Backend server running on http://${host}:${serverPort}/api`);
+  console.log(`   Local: http://localhost:${serverPort}/api`);
+  
+  if (ipAddresses.length > 0) {
+    ipAddresses.forEach((ip) => {
+      console.log(`   Network: http://${ip}:${serverPort}/api`);
+    });
+  } else {
+    console.log(`   Network: http://<your-ip>:${serverPort}/api`);
+  }
 }
 
 bootstrap();
