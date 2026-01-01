@@ -14,7 +14,7 @@ import { useAuthStore } from '@/store/authStore';
 // Change this URL when deploying to production
 // Option 1: Set NEXT_PUBLIC_API_URL in .env.local
 // Option 2: Update the default value below
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://103.14.120.163:8087/api';
 
 // ============================================
 // AXIOS INSTANCE CONFIGURATION

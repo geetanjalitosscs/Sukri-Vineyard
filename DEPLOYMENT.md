@@ -1,6 +1,8 @@
 # Deployment Guide - Ubuntu Server
 
-This guide will help you deploy the sukri Vineyard application to your Ubuntu server at `103.14.120.163:8097`.
+This guide will help you deploy the sukri Vineyard application to your Ubuntu server:
+- Backend: `103.14.120.163:8087`
+- Frontend: `103.14.120.163:8088`
 
 ## 📋 Prerequisites
 
@@ -8,7 +10,7 @@ Before starting, ensure you have:
 - Ubuntu server with SSH access (via PuTTY)
 - Root or sudo access
 - Domain name or IP address: `103.14.120.163`
-- Port 8097 open in firewall
+- Port 8087 (backend) and 8088 (frontend) open in firewall
 
 ---
 
@@ -121,13 +123,14 @@ DB_PASSWORD=your_secure_password_here
 
 # Application
 NODE_ENV=production
-PORT=3001
+PORT=8087
+HOST=0.0.0.0
 
 # JWT Secret (CHANGE THIS TO A RANDOM STRING!)
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production-$(openssl rand -hex 32)
 
 # Frontend URL
-FRONTEND_URL=http://103.14.120.163:8097
+FRONTEND_URL=http://103.14.120.163:8088
 ```
 
 **Save and exit:** Press `Ctrl+X`, then `Y`, then `Enter`
@@ -162,7 +165,8 @@ nano .env.local
 **Add the following content to `.env.local`:**
 
 ```env
-NEXT_PUBLIC_API_URL=http://103.14.120.163:3001/api
+NEXT_PUBLIC_API_URL=http://103.14.120.163:8087/api
+PORT=8088
 ```
 
 **Save and exit:** Press `Ctrl+X`, then `Y`, then `Enter`
@@ -191,12 +195,14 @@ module.exports = {
   apps: [
     {
       name: 'sukri-backend',
-      cwd: '/home/your-username/sukri_vineyard_s/backend',
+      cwd: './backend',
       script: 'npm',
       args: 'run start:prod',
       env: {
         NODE_ENV: 'production',
-        PORT: 3001
+        PORT: 8087,
+        HOST: '0.0.0.0',
+        FRONTEND_URL: 'http://103.14.120.163:8088'
       },
       error_file: './logs/backend-error.log',
       out_file: './logs/backend-out.log',
@@ -204,16 +210,19 @@ module.exports = {
       merge_logs: true,
       autorestart: true,
       watch: false,
-      max_memory_restart: '1G'
+      max_memory_restart: '1G',
+      instances: 1,
+      exec_mode: 'fork'
     },
     {
       name: 'sukri-frontend',
-      cwd: '/home/your-username/sukri_vineyard_s',
+      cwd: './',
       script: 'npm',
       args: 'start',
       env: {
         NODE_ENV: 'production',
-        PORT: 8097
+        PORT: 8088,
+        NEXT_PUBLIC_API_URL: 'http://103.14.120.163:8087/api'
       },
       error_file: './logs/frontend-error.log',
       out_file: './logs/frontend-out.log',
@@ -221,7 +230,9 @@ module.exports = {
       merge_logs: true,
       autorestart: true,
       watch: false,
-      max_memory_restart: '1G'
+      max_memory_restart: '1G',
+      instances: 1,
+      exec_mode: 'fork'
     }
   ]
 };
@@ -262,11 +273,11 @@ sudo nano /etc/nginx/sites-available/sukri-vineyard
 ```nginx
 # Backend API
 server {
-    listen 3001;
+    listen 8087;
     server_name 103.14.120.163;
 
     location /api {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:8087;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -280,11 +291,11 @@ server {
 
 # Frontend
 server {
-    listen 8097;
+    listen 8088;
     server_name 103.14.120.163;
 
     location / {
-        proxy_pass http://localhost:8097;
+        proxy_pass http://localhost:8088;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -313,7 +324,7 @@ sudo systemctl restart nginx
 sudo systemctl enable nginx
 ```
 
-**Note:** If you skip Nginx, the applications will run directly on ports 3001 (backend) and 8097 (frontend).
+**Note:** If you skip Nginx, the applications will run directly on ports 8087 (backend) and 8088 (frontend).
 
 ---
 
@@ -324,10 +335,10 @@ sudo systemctl enable nginx
 sudo ufw allow 22/tcp
 
 # Allow backend port
-sudo ufw allow 3001/tcp
+sudo ufw allow 8087/tcp
 
 # Allow frontend port
-sudo ufw allow 8097/tcp
+sudo ufw allow 8088/tcp
 
 # Allow HTTP/HTTPS (if using Nginx)
 sudo ufw allow 80/tcp
@@ -351,11 +362,11 @@ sudo ufw status
    ```
 
 2. **Check Backend:**
-   Open browser: `http://103.14.120.163:3001/api/temperature/readings`
+   Open browser: `http://103.14.120.163:8087/api/temperature/readings`
    Should return JSON data.
 
 3. **Check Frontend:**
-   Open browser: `http://103.14.120.163:8097`
+   Open browser: `http://103.14.120.163:8088`
    Should show the login page.
 
 4. **Test Login:**
@@ -454,8 +465,8 @@ pm2 restart sukri-frontend
 pm2 logs
 
 # Check if ports are in use
-sudo netstat -tulpn | grep :3001
-sudo netstat -tulpn | grep :8097
+sudo netstat -tulpn | grep :8087
+sudo netstat -tulpn | grep :8088
 
 # Check system resources
 free -h
@@ -479,8 +490,8 @@ sudo systemctl restart postgresql
 
 ```bash
 # Find process using port
-sudo lsof -i :8097
-sudo lsof -i :3001
+sudo lsof -i :8088
+sudo lsof -i :8087
 
 # Kill process (replace PID with actual process ID)
 sudo kill -9 <PID>
@@ -527,6 +538,6 @@ If you encounter issues:
 **Deployment Complete! 🎉**
 
 Your application should now be accessible at:
-- Frontend: `http://103.14.120.163:8097`
-- Backend API: `http://103.14.120.163:3001/api`
+- Frontend: `http://103.14.120.163:8088`
+- Backend API: `http://103.14.120.163:8087/api`
 
