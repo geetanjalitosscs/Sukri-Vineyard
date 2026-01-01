@@ -107,7 +107,7 @@ export default function InventoryPage() {
 
   const { items = [], lowStockCount = 0, totalItems = 0, totalValue = 0 } = inventoryData || {};
 
-  const chartData = items.map((item) => ({
+  const chartData = items.map((item: any) => ({
     name: item.name.split(" ")[0],
     current: item.currentStock,
     min: item.minStock,
@@ -239,7 +239,7 @@ export default function InventoryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((item) => {
+                  {items.map((item: any) => {
                     const threshold = item.minStock - 10;
                     const isBelowThreshold = item.currentStock <= threshold;
                     const hasAutoPosted = autoPostedItems.has(item.id);

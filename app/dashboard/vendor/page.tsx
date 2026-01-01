@@ -99,7 +99,7 @@ export default function VendorDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {purchaseOrders.map((po) => (
+              {purchaseOrders.map((po: any) => (
                 <div
                   key={po.id}
                   className="p-4 rounded-lg border hover:bg-accent/50"

@@ -314,7 +314,7 @@ export default function VendorsPage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-2">
-                  {vendors.map((vendor) => (
+                  {vendors.map((vendor: any) => (
                     <div
                       key={vendor.id}
                       className="flex items-center justify-between py-2.5 px-3 rounded-md border border-border/30 hover:bg-accent/30 transition-colors"
@@ -354,7 +354,7 @@ export default function VendorsPage() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="space-y-2">
-                  {purchaseOrders.map((po) => (
+                  {purchaseOrders.map((po: any) => (
                     <div
                       key={po.id}
                       className="flex items-center justify-between py-2.5 px-3 rounded-md border border-border/30 hover:bg-accent/30 transition-colors"

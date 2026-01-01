@@ -233,7 +233,7 @@ export default function CO2Page() {
                   </tr>
                 </thead>
                 <tbody>
-                  {barrels.map((barrel) => (
+                  {barrels.map((barrel: any) => (
                     <tr key={barrel.id} className="border-b border-border/30 hover:bg-accent/30 transition-colors">
                       <td className="py-2.5 px-3 text-xs font-medium text-foreground">{barrel.id}</td>
                       <td className="py-2.5 px-3 text-xs text-muted-foreground">

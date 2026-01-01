@@ -180,7 +180,7 @@ export default function HRDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {Object.entries(weeklyStats).map(([day, stats]) => (
+                {Object.entries(weeklyStats).map(([day, stats]: [string, any]) => (
                   <div key={day} className="flex items-center justify-between">
                     <span className="text-sm font-medium capitalize">{day}</span>
                     <div className="flex items-center gap-4">
@@ -225,7 +225,7 @@ export default function HRDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {records.map((record) => (
+                  {records.map((record: any) => (
                     <tr key={record.id} className="border-b hover:bg-accent/50">
                       <td className="p-3 font-medium">{record.name}</td>
                       <td className="p-3 text-sm text-muted-foreground">

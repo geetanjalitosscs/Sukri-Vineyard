@@ -133,7 +133,7 @@ export default function TemperaturePage() {
                 </thead>
                 <tbody>
                   {readings.length > 0 ? (
-                    readings.slice(-10).reverse().map((reading, index) => (
+                    readings.slice(-10).reverse().map((reading: any, index: number) => (
                     <tr key={index} className="border-b border-border/30 hover:bg-accent/30 transition-colors">
                       <td className="py-2.5 px-3 text-xs font-medium text-foreground">{reading.time}</td>
                       <td className="py-2.5 px-3 text-xs text-muted-foreground">{reading.temperature}°C</td>
